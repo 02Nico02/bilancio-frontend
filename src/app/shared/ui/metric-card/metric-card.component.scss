@@ -1,0 +1,71 @@
+.metric-card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border-subtle);
+  background: rgba(9, 16, 30, 0.8);
+}
+
+.metric-card__label {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.metric-card__value {
+  margin: 0;
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.metric-card__caption {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.metric-card__trend {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+}
+
+.metric-card__tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-border-subtle);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-card--favorable .metric-card__tone {
+  color: var(--color-success);
+  background: rgba(63, 209, 139, 0.12);
+}
+
+.metric-card--unfavorable .metric-card__tone,
+.metric-card--warning .metric-card__tone {
+  color: var(--color-warning);
+  background: rgba(245, 184, 77, 0.12);
+}
+
+.metric-card--neutral .metric-card__tone,
+.metric-card--info .metric-card__tone {
+  color: var(--color-info);
+  background: rgba(144, 185, 255, 0.12);
+}
+

@@ -1,0 +1,90 @@
+<div class="shell">
+  <button
+    class="shell__backdrop"
+    type="button"
+    [class.shell__backdrop--visible]="sidebarOpen()"
+    aria-label="Cerrar navegación"
+    [attr.aria-hidden]="!sidebarOpen()"
+    [attr.tabindex]="sidebarOpen() ? 0 : -1"
+    (click)="closeSidebar()"
+  ></button>
+
+  <aside class="shell__sidebar" [class.shell__sidebar--open]="sidebarOpen()">
+    <div class="brand">
+      <a class="brand__link" routerLink="/dashboard" (click)="closeOnNavigate()">
+        <span class="brand__name">Bilancio</span>
+        <span class="brand__tagline">Finanzas y Patrimonio</span>
+      </a>
+    </div>
+
+    <nav class="nav" aria-label="Navegación principal">
+      <div class="nav__group">
+        @for (item of primaryNav; track item.path) {
+          <a
+            class="nav__item"
+            [routerLink]="item.path"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+            (click)="closeOnNavigate()"
+          >
+            <span class="nav__icon" aria-hidden="true"></span>
+            <span class="nav__label">{{ item.label }}</span>
+          </a>
+        }
+      </div>
+
+      <div class="nav__group nav__group--future" aria-label="Próximamente">
+        @for (item of futureNav; track item.label) {
+          <button class="nav__item nav__item--disabled" type="button" disabled>
+            <span class="nav__icon nav__icon--future" aria-hidden="true"></span>
+            <span class="nav__label">
+              {{ item.label }}
+              <small>{{ item.note }}</small>
+            </span>
+          </button>
+        }
+      </div>
+    </nav>
+
+    <div class="shell__footer">
+      <button class="cta-button" type="button" disabled>
+        <span class="cta-button__icon" aria-hidden="true">+</span>
+        <span>Registrar movimiento</span>
+      </button>
+
+      <div class="utility-links" aria-label="Acciones secundarias">
+        @for (item of utilityNav; track item.label) {
+          <button class="utility-links__item" type="button" disabled>
+            <span class="nav__icon nav__icon--utility" aria-hidden="true"></span>
+            <span>{{ item.label }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  </aside>
+
+  <div class="shell__content">
+    <header class="topbar">
+      <button
+        class="topbar__menu"
+        type="button"
+        aria-label="Abrir navegación"
+        [attr.aria-expanded]="sidebarOpen()"
+        (click)="toggleSidebar()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="topbar__meta">
+        <p class="topbar__eyebrow">Personal Finance Intelligence</p>
+        <p class="topbar__status">{{ 'Base visual premium y analítica' }}</p>
+      </div>
+    </header>
+
+    <main class="shell__main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

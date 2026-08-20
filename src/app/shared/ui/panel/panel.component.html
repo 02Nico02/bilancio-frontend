@@ -1,0 +1,19 @@
+<section class="panel">
+  <header class="panel__header">
+    <div class="panel__copy">
+      @if (eyebrow) {
+        <p class="panel__eyebrow">{{ eyebrow }}</p>
+      }
+      <h2 class="panel__title">{{ title }}</h2>
+      @if (description) {
+        <p class="panel__description">{{ description }}</p>
+      }
+    </div>
+    <div class="panel__actions">
+      <ng-content select="[actions]"></ng-content>
+    </div>
+  </header>
+  <div class="panel__body">
+    <ng-content></ng-content>
+  </div>
+</section>

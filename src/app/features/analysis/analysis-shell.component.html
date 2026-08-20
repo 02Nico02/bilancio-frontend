@@ -1,0 +1,27 @@
+<app-page-header
+  eyebrow="Análisis"
+  title="Análisis"
+  description="Lecturas compactas sobre flujo de gastos y poder adquisitivo."
+>
+  <nav class="analysis-tabs" aria-label="Subsecciones de análisis" actions>
+    <a
+      class="analysis-tabs__item"
+      routerLink="/analisis/flujo-gastos"
+      routerLinkActive="is-active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Flujo y Gastos
+    </a>
+    <a
+      class="analysis-tabs__item"
+      routerLink="/analisis/poder-adquisitivo"
+      routerLinkActive="is-active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      Poder Adquisitivo
+    </a>
+  </nav>
+</app-page-header>
+
+<router-outlet />
+
