@@ -12,8 +12,8 @@
   <aside class="shell__sidebar" [class.shell__sidebar--open]="sidebarOpen()">
     <div class="brand">
       <a class="brand__link" routerLink="/dashboard" (click)="closeOnNavigate()">
-        <span class="brand__name">Bilancio</span>
-        <span class="brand__tagline">Finanzas y Patrimonio</span>
+        <img class="brand__logo" src="/logo-bilancio.png" alt="Bilancio" />
+        <span class="sr-only">Bilancio</span>
       </a>
     </div>
 
@@ -27,7 +27,7 @@
             [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
             (click)="closeOnNavigate()"
           >
-            <span class="nav__icon" aria-hidden="true"></span>
+            <app-icon class="nav__icon" [name]="item.icon" />
             <span class="nav__label">{{ item.label }}</span>
           </a>
         }
@@ -36,7 +36,7 @@
       <div class="nav__group nav__group--future" aria-label="Próximamente">
         @for (item of futureNav; track item.label) {
           <button class="nav__item nav__item--disabled" type="button" disabled>
-            <span class="nav__icon nav__icon--future" aria-hidden="true"></span>
+            <app-icon class="nav__icon nav__icon--future" [name]="item.icon" />
             <span class="nav__label">
               {{ item.label }}
               <small>{{ item.note }}</small>
@@ -48,14 +48,19 @@
 
     <div class="shell__footer">
       <button class="cta-button" type="button" disabled>
-        <span class="cta-button__icon" aria-hidden="true">+</span>
-        <span>Registrar movimiento</span>
+        <span class="cta-button__icon-wrap">
+          <app-icon class="cta-button__icon" name="plus" />
+        </span>
+        <span class="cta-button__copy">
+          <span class="cta-button__label">Registrar movimiento</span>
+          <span class="cta-button__subtle">Ingreso, gasto o transferencia</span>
+        </span>
       </button>
 
       <div class="utility-links" aria-label="Acciones secundarias">
         @for (item of utilityNav; track item.label) {
           <button class="utility-links__item" type="button" disabled>
-            <span class="nav__icon nav__icon--utility" aria-hidden="true"></span>
+            <app-icon class="nav__icon nav__icon--utility" [name]="item.icon" />
             <span>{{ item.label }}</span>
           </button>
         }
@@ -65,21 +70,37 @@
 
   <div class="shell__content">
     <header class="topbar">
-      <button
-        class="topbar__menu"
-        type="button"
-        aria-label="Abrir navegación"
-        [attr.aria-expanded]="sidebarOpen()"
-        (click)="toggleSidebar()"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+      <div class="topbar__leading">
+        <button
+          class="topbar__menu"
+          type="button"
+          aria-label="Abrir navegación"
+          [attr.aria-expanded]="sidebarOpen()"
+          (click)="toggleSidebar()"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
 
-      <div class="topbar__meta">
-        <p class="topbar__eyebrow">Personal Finance Intelligence</p>
-        <p class="topbar__status">{{ 'Base visual premium y analítica' }}</p>
+        <button class="topbar__period" type="button" aria-label="Seleccionar período">
+          <app-icon name="calendar" />
+          <span>{{ selectedPeriodLabel }}</span>
+          <app-icon name="chevron-down" />
+        </button>
+      </div>
+
+      <div class="topbar__actions" aria-label="Acciones de navegación">
+        <button class="topbar__action topbar__action--notification" type="button" aria-label="Notificaciones">
+          <app-icon name="notifications" />
+          <span class="topbar__badge">1</span>
+        </button>
+        <button class="topbar__action" type="button" aria-label="Configuración">
+          <app-icon name="settings" />
+        </button>
+        <button class="topbar__profile" type="button" aria-label="Perfil">
+          <app-icon name="profile" />
+        </button>
       </div>
     </header>
 

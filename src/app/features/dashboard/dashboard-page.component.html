@@ -1,261 +1,150 @@
-<app-page-header
-  eyebrow="Dashboard"
-  title="Resumen financiero"
-  description="Lectura compacta de ingresos, gastos, resultado neto y contexto macro para comprender el mes sin mezclar monedas."
->
+@let summary = facade.summary();
+@let activeExpenseAnalysis = facade.activeExpenseAnalysis();
+
+<app-page-header eyebrow="Dashboard" title="Resumen del mes">
   <div class="header-actions" actions>
-    <span class="header-actions__meta mono">{{ summary().generatedAtLabel }}</span>
-    <a class="header-action" [routerLink]="summary().purchasingPower.ctaHref">
-      {{ summary().purchasingPower.ctaLabel }}
+    <a class="header-actions__link" [routerLink]="summary.purchasingPower.ctaHref">
+      Ver análisis
     </a>
   </div>
 </app-page-header>
 
 <section class="dashboard-grid">
-  <app-panel
-    eyebrow="Flujo de caja"
-    title="Ingresos, gastos y resultado neto por moneda"
-    description="ARS y USD se muestran por separado para mantener jerarquía equivalente y evitar sumas cruzadas."
-  >
-    <div class="cashflow-switcher" actions>
-      @for (cashFlow of cashFlows(); track cashFlow.currency) {
-        <button
-          class="chip"
-          type="button"
-          [class.chip--active]="isSelected(cashFlow.currency)"
-          (click)="selectCurrency(cashFlow.currency)"
-        >
-          {{ cashFlow.currencyLabel }}
-        </button>
-      }
-    </div>
-
-    <div class="cashflow-grid">
-      @for (cashFlow of cashFlows(); track cashFlow.currency) {
-        <section class="currency-block" [class.currency-block--selected]="isSelected(cashFlow.currency)">
-          <header class="currency-block__header">
+  <app-panel eyebrow="Flujo de caja" title="ARS y USD">
+    <div class="cashflow-board">
+      @for (cashFlow of facade.cashFlows(); track cashFlow.currency) {
+        <article class="cashflow-card">
+          <header class="cashflow-card__header">
             <div>
-              <p class="currency-block__eyebrow">{{ cashFlow.currencyLabel }}</p>
-              <h3 class="currency-block__title">Resumen de flujo</h3>
+              <p class="cashflow-card__eyebrow">{{ cashFlow.currencyLabel }}</p>
+              <h3 class="cashflow-card__title">Flujo mensual</h3>
             </div>
-            <p class="currency-block__note">{{ cashFlow.basePeriodLabel }}</p>
+            <p class="cashflow-card__meta mono">{{ cashFlow.basePeriodLabel }}</p>
           </header>
 
           <div class="metric-row">
             <app-metric-card
               label="Ingresos"
               [value]="cashFlow.income.amountLabel"
-              caption="Entrada mensual registrada"
               tone="info"
-              toneLabel="Contexto"
             />
             <app-metric-card
               label="Gastos"
               [value]="cashFlow.expenses.amountLabel"
-              caption="Salida mensual registrada"
               tone="warning"
-              toneLabel="Contexto"
-            />
-            <app-metric-card
-              label="Resultado neto"
-              [value]="cashFlow.net.amountLabel"
-              [caption]="cashFlow.note"
-              [tone]="cashFlow.variationTone"
-              [toneLabel]="cashFlow.variationTone === 'favorable' ? 'Favorable' : 'Desfavorable'"
-              [trend]="cashFlow.variationLabel"
             />
           </div>
-        </section>
-      }
-    </div>
-  </app-panel>
 
-  <app-panel
-    eyebrow="Poder adquisitivo"
-    title="Contexto económico"
-    description="Lectura compacta respecto de una base visible. La comparación usa texto además del color para que el significado no dependa solo del tono."
-  >
-    <div class="context-grid">
-      <article class="context-card context-card--highlight">
-        <p class="context-card__label">Variación real</p>
-        <p class="context-card__value mono">{{ summary().purchasingPower.variationLabel }}</p>
-        <p class="context-card__note">{{ summary().purchasingPower.baseDateLabel }}</p>
-      </article>
-
-      <article class="context-card">
-        <p class="context-card__label">USD Blue</p>
-        <p class="context-card__value">{{ summary().purchasingPower.usdBlueLabel }}</p>
-        <p class="context-card__note">Referencia visual para el análisis, no moneda dominante.</p>
-      </article>
-
-      <article class="context-card">
-        <p class="context-card__label">Inflación mensual</p>
-        <p class="context-card__value">{{ summary().purchasingPower.inflationLabel }}</p>
-        <p class="context-card__note">Efecto contextual sobre la lectura real.</p>
-      </article>
-
-      <article class="context-card">
-        <p class="context-card__label">Sueldo de referencia</p>
-        <p class="context-card__value">{{ summary().purchasingPower.referenceSalaryLabel }}</p>
-        <p class="context-card__note">{{ summary().purchasingPower.detailLabel }}</p>
-      </article>
-    </div>
-  </app-panel>
-
-  <app-panel
-    eyebrow="Análisis de gastos"
-    title="Resumen de categorías"
-    description="Sección resumida con categorías principales, participación y evolución mensual compacta."
-  >
-    <div class="analysis-toolbar" actions>
-      @for (analysis of expenseAnalyses(); track analysis.currency) {
-        <button
-          class="chip chip--ghost"
-          type="button"
-          [class.chip--active]="isSelected(analysis.currency)"
-          (click)="selectCurrency(analysis.currency)"
-        >
-          {{ analysis.selectorLabel }}
-        </button>
-      }
-    </div>
-
-    <div class="expense-layout">
-      <section class="expense-main">
-        <div class="expense-main__summary">
-          <div>
-            <p class="expense-main__eyebrow">Moneda activa</p>
-            <h3 class="expense-main__title">{{ activeExpenseAnalysis().currencyLabel }}</h3>
+          <div class="cashflow-card__net cashflow-card__net--{{ cashFlow.variationTone }}">
+            <p class="expense-main__label">Resultado neto</p>
+            <p class="cashflow-card__net-value mono">{{ cashFlow.net.amountLabel }}</p>
+            <p class="cashflow-card__net-trend">{{ cashFlow.variationLabel }}</p>
           </div>
-          <p class="expense-main__total mono">{{ activeExpenseAnalysis().total.amountLabel }}</p>
-        </div>
-
-        <div class="category-list">
-          @for (category of activeExpenseAnalysis().categories; track category.label) {
-            <article class="category-row">
-              <div class="category-row__copy">
-                <h4>{{ category.label }}</h4>
-                <p>{{ category.note }}</p>
-              </div>
-
-              <div class="category-row__meta">
-                <p class="mono">{{ category.amount.amountLabel }}</p>
-                <div class="share-bar" aria-label="Participación relativa">
-                  <span class="share-bar__fill" [style.width.%]="category.sharePercent"></span>
-                </div>
-                <p class="category-row__trend category-row__trend--{{ category.trendTone }}">
-                  {{ category.trendLabel }}
-                </p>
-              </div>
-            </article>
-          }
-        </div>
-      </section>
-
-      <aside class="expense-side">
-        <h3>Evolución mensual</h3>
-        <div class="mini-chart" role="img" aria-label="Evolución mensual compacta">
-          @let maxValue = expenseEvolutionMax(activeExpenseAnalysis().monthlyEvolution);
-          @for (point of activeExpenseAnalysis().monthlyEvolution; track point.periodLabel) {
-            <div class="mini-chart__row">
-              <span class="mini-chart__label">{{ point.periodLabel }}</span>
-              <div class="mini-chart__bar">
-                <span class="mini-chart__fill" [style.width.%]="(point.amount / maxValue) * 100"></span>
-              </div>
-              <span class="mini-chart__value mono">{{ point.amountLabel }}</span>
-            </div>
-          }
-        </div>
-      </aside>
-    </div>
-  </app-panel>
-
-  <app-panel
-    eyebrow="Insights y alertas"
-    title="Lecturas descriptivas"
-    description="Los insights no recomiendan acciones financieras; solo describen lo que cambió y dónde mirar."
-  >
-    <div class="insight-list">
-      @for (insight of insights(); track insight.title) {
-        <article class="insight-card insight-card--{{ insight.tone }}">
-          <p class="insight-card__tone">
-            {{
-              insight.tone === 'warning'
-                ? 'Alerta'
-                : insight.tone === 'favorable'
-                  ? 'Favorable'
-                  : insight.tone === 'info'
-                    ? 'Contexto'
-                    : 'Neutral'
-            }}
-          </p>
-          <h3 class="insight-card__title">{{ insight.title }}</h3>
-          <p class="insight-card__detail">{{ insight.detail }}</p>
         </article>
       }
     </div>
   </app-panel>
 
-  <app-panel
-    eyebrow="Serie activa"
-    title="Evolución de caja"
-    description="Visualización simple en SVG/CSS para evitar una dependencia de charts en esta etapa."
-  >
-    <div class="chart-legend">
-      <span><i class="legend legend--income"></i> Ingresos</span>
-      <span><i class="legend legend--expenses"></i> Gastos</span>
-      <span><i class="legend legend--net"></i> Resultado neto</span>
+  <app-panel eyebrow="Poder adquisitivo" title="Variación real">
+    <div class="power-block">
+      <div class="power-block__hero">
+        <p class="power-block__eyebrow">{{ summary.purchasingPower.baseDateLabel }}</p>
+        <p class="power-block__value mono">{{ summary.purchasingPower.variationLabel }}</p>
+        <a class="power-block__cta" [routerLink]="summary.purchasingPower.ctaHref">
+          {{ summary.purchasingPower.ctaLabel }}
+        </a>
+      </div>
+
+      <div class="power-facts">
+        <article class="mini-stat">
+          <span>USD Blue</span>
+          <strong>{{ summary.purchasingPower.usdBlueLabel }}</strong>
+        </article>
+        <article class="mini-stat">
+          <span>Inflación</span>
+          <strong>{{ summary.purchasingPower.inflationLabel }}</strong>
+        </article>
+        <article class="mini-stat">
+          <span>Sueldo de referencia</span>
+          <strong>{{ summary.purchasingPower.referenceSalaryLabel }}</strong>
+        </article>
+      </div>
     </div>
-
-    <svg
-      class="cashflow-chart"
-      viewBox="0 0 100 100"
-      role="img"
-      [attr.aria-label]="'Evolución de flujo en ' + activeCashFlow().currencyLabel"
-    >
-      <defs>
-        <linearGradient id="incomeGradient" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#88c7ff" />
-          <stop offset="100%" stop-color="#88c7ff" stop-opacity="0.18" />
-        </linearGradient>
-        <linearGradient id="expenseGradient" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#f5b84d" />
-          <stop offset="100%" stop-color="#f5b84d" stop-opacity="0.16" />
-        </linearGradient>
-        <linearGradient id="netGradient" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stop-color="#3fd18b" />
-          <stop offset="100%" stop-color="#3fd18b" stop-opacity="0.12" />
-        </linearGradient>
-      </defs>
-
-      <g class="cashflow-chart__grid">
-        @for (line of [12, 28, 44, 60, 76, 92]; track line) {
-          <line x1="4" [attr.y1]="line" x2="98" [attr.y2]="line"></line>
-        }
-      </g>
-
-      <g class="cashflow-chart__area">
-        <polyline
-          [attr.points]="linePoints(activeCashFlow().series, 'income')"
-          class="cashflow-chart__line cashflow-chart__line--income"
-        ></polyline>
-        <polyline
-          [attr.points]="linePoints(activeCashFlow().series, 'expenses')"
-          class="cashflow-chart__line cashflow-chart__line--expenses"
-        ></polyline>
-        <polyline
-          [attr.points]="linePoints(activeCashFlow().series, 'net')"
-          class="cashflow-chart__line cashflow-chart__line--net"
-        ></polyline>
-      </g>
-
-      <g class="cashflow-chart__labels">
-        @for (point of activeCashFlow().series; track point.periodLabel; let index = $index) {
-          <text [attr.x]="index === 0 ? 6 : (index / (activeCashFlow().series.length - 1)) * 94 + 4" y="98">
-            {{ point.periodLabel }}
-          </text>
-        }
-      </g>
-    </svg>
   </app-panel>
+
+  <div class="dashboard-grid__pair">
+    <app-panel eyebrow="Gastos" title="¿A DÓNDE VA EL DINERO?">
+      <div class="analysis-toolbar" actions>
+        @for (analysis of facade.expenseAnalyses(); track analysis.currency) {
+          <button
+            class="chip chip--ghost"
+            type="button"
+            [class.chip--active]="facade.selectedCurrency() === analysis.currency"
+            (click)="selectCurrency(analysis.currency)"
+          >
+            {{ analysis.selectorLabel }}
+          </button>
+        }
+      </div>
+
+      <div class="expense-grid">
+        <section class="expense-main">
+          <div class="expense-main__summary">
+            <p class="expense-main__label">{{ activeExpenseAnalysis.currencyLabel }}</p>
+            <p class="expense-main__value mono">{{ activeExpenseAnalysis.total.amountLabel }}</p>
+          </div>
+
+          <ul class="category-list">
+            @for (category of activeExpenseAnalysis.categories.slice(0, 3); track category.label) {
+              <li class="category-row">
+                <div class="category-row__copy">
+                  <h4>{{ category.label }}</h4>
+                  <div class="share-bar" aria-label="Participación relativa">
+                    <span class="share-bar__fill" [style.width.%]="category.sharePercent"></span>
+                  </div>
+                </div>
+
+                <div class="category-row__meta">
+                  <p class="mono">{{ category.amount.amountLabel }}</p>
+                  <p class="category-row__trend category-row__trend--{{ category.trendTone }}">
+                    {{ category.trendLabel }}
+                  </p>
+                </div>
+              </li>
+            }
+          </ul>
+        </section>
+
+        <aside class="expense-side">
+          <h3>Evolución mensual</h3>
+          <div class="mini-bars">
+            @let maxValue = expenseEvolutionMax(activeExpenseAnalysis.monthlyEvolution);
+            @for (point of activeExpenseAnalysis.monthlyEvolution; track point.periodLabel) {
+              <div class="mini-bars__row">
+                <span class="mini-bars__label">{{ point.periodLabel }}</span>
+                <div class="mini-bars__bar">
+                  <span class="mini-bars__fill" [style.width.%]="(point.amount / maxValue) * 100"></span>
+                </div>
+                <span class="mini-bars__value mono">{{ point.amountLabel }}</span>
+              </div>
+            }
+          </div>
+        </aside>
+      </div>
+    </app-panel>
+
+    <app-panel eyebrow="Insights" title="Alertas">
+      <ul class="insight-list">
+        @for (insight of facade.insights(); track insight.title) {
+          <li class="insight-item">
+            <span class="insight-item__dot insight-item__dot--{{ insight.tone }}" aria-hidden="true"></span>
+            <div class="insight-item__copy">
+              <strong>{{ insight.title }}</strong>
+              <p>{{ insight.detail }}</p>
+            </div>
+          </li>
+        }
+      </ul>
+    </app-panel>
+  </div>
 </section>

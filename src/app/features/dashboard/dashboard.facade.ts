@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, computed, signal } from '@angular/core';
 import type { CurrencyCode, DashboardSummary } from './dashboard.models';
 import { DASHBOARD_DATA_SOURCE } from './dashboard.data-source';
 
@@ -9,22 +9,23 @@ export class DashboardFacade {
   readonly selectedCurrency = signal<CurrencyCode>('ARS');
 
   readonly summary = this.summarySignal.asReadonly();
+  readonly cashFlows = computed(() => this.summarySignal().cashFlows);
+  readonly expenseAnalyses = computed(() => this.summarySignal().expenseAnalyses);
+  readonly insights = computed(() => this.summarySignal().insights);
 
-  readonly cashFlows = () => this.summarySignal().cashFlows;
-  readonly expenseAnalyses = () => this.summarySignal().expenseAnalyses;
-  readonly insights = () => this.summarySignal().insights;
+  readonly activeCashFlow = computed(
+    () =>
+      this.cashFlows().find((item) => item.currency === this.selectedCurrency()) ??
+      this.cashFlows()[0],
+  );
 
-  readonly activeCashFlow = () =>
-    this.summarySignal().cashFlows.find((item) => item.currency === this.selectedCurrency()) ??
-    this.summarySignal().cashFlows[0];
-
-  readonly activeExpenseAnalysis = () =>
-    this.summarySignal().expenseAnalyses.find(
-      (item) => item.currency === this.selectedCurrency(),
-    ) ?? this.summarySignal().expenseAnalyses[0];
+  readonly activeExpenseAnalysis = computed(
+    () =>
+      this.expenseAnalyses().find((item) => item.currency === this.selectedCurrency()) ??
+      this.expenseAnalyses()[0],
+  );
 
   selectCurrency(currency: CurrencyCode): void {
     this.selectedCurrency.set(currency);
   }
 }
-

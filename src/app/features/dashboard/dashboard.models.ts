@@ -9,13 +9,6 @@ export interface MoneyDisplay {
   currencyLabel: string;
 }
 
-export interface CashFlowPoint {
-  periodLabel: string;
-  income: number;
-  expenses: number;
-  net: number;
-}
-
 export interface CashFlowView {
   currency: CurrencyCode;
   currencyLabel: string;
@@ -24,9 +17,7 @@ export interface CashFlowView {
   net: MoneyDisplay;
   variationLabel: string;
   variationTone: FinancialTone;
-  note: string;
   basePeriodLabel: string;
-  series: CashFlowPoint[];
 }
 
 export interface PurchasingPowerSummary {
@@ -36,7 +27,6 @@ export interface PurchasingPowerSummary {
   usdBlueLabel: string;
   inflationLabel: string;
   referenceSalaryLabel: string;
-  detailLabel: string;
   ctaLabel: string;
   ctaHref: string;
 }
@@ -47,7 +37,6 @@ export interface ExpenseCategorySummary {
   sharePercent: number;
   trendLabel: string;
   trendTone: FinancialTone;
-  note: string;
 }
 
 export interface MonthlyEvolutionPoint {
@@ -72,10 +61,8 @@ export interface Insight {
 }
 
 export interface DashboardSummary {
-  generatedAtLabel: string;
   cashFlows: CashFlowView[];
   purchasingPower: PurchasingPowerSummary;
   expenseAnalyses: ExpenseAnalysisView[];
   insights: Insight[];
 }
-

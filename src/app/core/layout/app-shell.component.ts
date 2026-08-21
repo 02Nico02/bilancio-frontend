@@ -1,26 +1,29 @@
 import { HostListener, Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { IconComponent } from '../../shared/ui/icon/icon.component';
+import type { IconName } from '../../shared/ui/icon/icon.component';
 
 type NavItem = {
   label: string;
   path: string;
-  icon: string;
+  icon: IconName;
 };
 
 type FutureItem = {
   label: string;
-  icon: string;
+  icon: IconName;
   note: string;
 };
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, IconComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })
 export class AppShellComponent {
   protected readonly sidebarOpen = signal(false);
+  protected readonly selectedPeriodLabel = 'Este mes';
 
   protected readonly primaryNav: NavItem[] = [
     { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
@@ -34,18 +37,14 @@ export class AppShellComponent {
     { label: 'Objetivos', icon: 'goals', note: 'Próximamente' },
   ];
 
-  protected readonly utilityNav: NavItem[] = [
-    { label: 'Configuración', path: '/dashboard', icon: 'settings' },
-    { label: 'Soporte', path: '/dashboard', icon: 'support' },
+  protected readonly utilityNav: Array<{ label: string; icon: IconName }> = [
+    { label: 'Configuración', icon: 'settings' },
+    { label: 'Soporte', icon: 'support' },
   ];
 
   @HostListener('document:keydown.escape')
   closeSidebar(): void {
     this.sidebarOpen.set(false);
-  }
-
-  openSidebar(): void {
-    this.sidebarOpen.set(true);
   }
 
   closeOnNavigate(): void {
