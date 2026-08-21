@@ -19,9 +19,8 @@ const arsCashFlow: CashFlowView = {
   income: makeMoney('ARS', 4860000),
   expenses: makeMoney('ARS', 2410000),
   net: makeMoney('ARS', 2450000),
-  variationLabel: `${formatShortPercent(4.2)} vs enero 2026`,
+  variationLabel: `${formatShortPercent(4.2)} vs mes anterior`,
   variationTone: 'favorable',
-  basePeriodLabel: 'Base: enero 2026',
 };
 
 const usdCashFlow: CashFlowView = {
@@ -30,9 +29,8 @@ const usdCashFlow: CashFlowView = {
   income: makeMoney('USD', 2480),
   expenses: makeMoney('USD', 1310),
   net: makeMoney('USD', 1170),
-  variationLabel: `${formatShortPercent(-1.8)} vs enero 2026`,
+  variationLabel: `${formatShortPercent(-1.8)} vs mes anterior`,
   variationTone: 'unfavorable',
-  basePeriodLabel: 'Base: enero 2026',
 };
 
 const expenseAnalyses: ExpenseAnalysisView[] = [

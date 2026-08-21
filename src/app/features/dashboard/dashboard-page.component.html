@@ -2,11 +2,6 @@
 @let activeExpenseAnalysis = facade.activeExpenseAnalysis();
 
 <app-page-header eyebrow="Dashboard" title="Resumen del mes">
-  <div class="header-actions" actions>
-    <a class="header-actions__link" [routerLink]="summary.purchasingPower.ctaHref">
-      Ver análisis
-    </a>
-  </div>
 </app-page-header>
 
 <section class="dashboard-grid">
@@ -19,7 +14,6 @@
               <p class="cashflow-card__eyebrow">{{ cashFlow.currencyLabel }}</p>
               <h3 class="cashflow-card__title">Flujo mensual</h3>
             </div>
-            <p class="cashflow-card__meta mono">{{ cashFlow.basePeriodLabel }}</p>
           </header>
 
           <div class="metric-row">
@@ -36,7 +30,7 @@
           </div>
 
           <div class="cashflow-card__net cashflow-card__net--{{ cashFlow.variationTone }}">
-            <p class="expense-main__label">Resultado neto</p>
+            <p class="cashflow-card__net-label">Resultado neto</p>
             <p class="cashflow-card__net-value mono">{{ cashFlow.net.amountLabel }}</p>
             <p class="cashflow-card__net-trend">{{ cashFlow.variationLabel }}</p>
           </div>
@@ -73,7 +67,7 @@
   </app-panel>
 
   <div class="dashboard-grid__pair">
-    <app-panel eyebrow="Gastos" title="¿A DÓNDE VA EL DINERO?">
+    <app-panel eyebrow="Gastos" title="Principales gastos">
       <div class="analysis-toolbar" actions>
         @for (analysis of facade.expenseAnalyses(); track analysis.currency) {
           <button

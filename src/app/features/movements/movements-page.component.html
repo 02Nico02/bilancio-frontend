@@ -1,16 +1,410 @@
+@let summary = facade.summary();
+@let sort = facade.sort();
+@let pageItems = facade.pageItems();
+@let selectedMovement = facade.selectedMovement();
+@let filterChips = facade.filterChips();
+
 <app-page-header
   eyebrow="Movimientos"
-  title="Movimientos"
-  description="Vista mínima activa para validar navegación. La carga y edición de transacciones todavía no se implementa."
+  title="Historial financiero"
 ></app-page-header>
 
-<app-panel
-  eyebrow="Estado actual"
-  title="Pantalla en preparación"
-  description="En esta iteración solo se verifica la ruta y el encuadre visual."
->
-  <p class="movements-copy">
-    El formulario de registrar movimiento, el detalle y la interacción compleja quedarán para la siguiente etapa.
-  </p>
-</app-panel>
+<section class="movements-layout">
+  <div class="movements-layout__main">
+    <app-panel eyebrow="Filtros" title="Buscar y ordenar">
+      <div class="movements-toolbar">
+        <label class="search-field surface-field" aria-label="Buscar movimientos">
+          <app-icon name="search" />
+          <input
+            type="search"
+            placeholder="Buscar por descripción, cuenta, categoría o notas"
+            [formControl]="filterForm.controls.search"
+          />
+        </label>
 
+        <div class="sort-switch" aria-label="Orden">
+          @for (field of sortFields; track field) {
+            <button
+              class="sort-switch__button surface-control"
+              type="button"
+              [class.is-active]="sort.field === field"
+              [attr.aria-pressed]="sort.field === field"
+              [attr.aria-sort]="ariaSort(field)"
+              (click)="setSort(field)"
+            >
+              <span>{{ field === 'date' ? 'Fecha' : 'Importe' }}</span>
+              <app-icon [name]="sortIcon(field)" />
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="filters-shell" [formGroup]="filterForm">
+        <div class="filters-grid">
+          <label class="filter-field surface-field">
+            <span>Desde</span>
+            <input type="date" formControlName="dateFrom" />
+          </label>
+
+          <label class="filter-field surface-field">
+            <span>Hasta</span>
+            <input type="date" formControlName="dateTo" />
+          </label>
+
+          <label class="filter-field surface-field">
+            <span>Tipo</span>
+            <select formControlName="type">
+              @for (option of typeOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="filter-field surface-field">
+            <span>Moneda</span>
+            <select formControlName="currency">
+              @for (option of currencyOptions; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="filter-field surface-field">
+            <span>Cuenta</span>
+            <select formControlName="account">
+              @for (option of facade.accountOptions(); track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="filter-field surface-field">
+            <span>Categoría</span>
+            <select formControlName="category">
+              @for (option of facade.categoryOptions(); track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-chips" aria-label="Filtros activos">
+          @for (chip of filterChips; track chip.key) {
+            <button class="filter-chip surface-control" type="button" (click)="clearFilter(chip.key)">
+              <span>{{ chip.label }}</span>
+              <app-icon name="close" />
+            </button>
+          }
+          @if (filterChips.length === 0) {
+            <span class="filter-chips__empty">Sin filtros activos</span>
+          }
+        </div>
+
+        <button class="clear-all surface-control" type="button" [disabled]="filterChips.length === 0" (click)="clearAllFilters()">
+          Limpiar todo
+        </button>
+      </div>
+    </app-panel>
+
+    <app-panel eyebrow="Resumen" title="Movimientos del período">
+      <div class="period-summary">
+        <div class="period-summary__meta">
+          <p class="period-summary__count">{{ summary.filteredCountLabel }}</p>
+          <p class="period-summary__range">Mostrando {{ facade.pageRangeLabel() }}</p>
+        </div>
+        <p class="period-summary__note">{{ summary.periodLabel }}</p>
+      </div>
+
+      <div class="currency-summary-grid">
+        @for (currencySummary of summary.currencies; track currencySummary.currency) {
+          <article class="currency-summary surface-card currency-summary--{{ currencySummary.currency }}">
+            <header class="currency-summary__header">
+              <div>
+                <p class="currency-summary__eyebrow">{{ currencySummary.currencyLabel }}</p>
+                <h3>{{ currencySummary.currency === 'ARS' ? 'Resumen ARS' : 'Resumen USD' }}</h3>
+              </div>
+            </header>
+
+            <div class="currency-summary__metrics">
+              <app-metric-card
+                label="Ingresos"
+                [value]="currencySummary.incomeLabel"
+                tone="favorable"
+              />
+              <app-metric-card
+                label="Gastos"
+                [value]="currencySummary.expensesLabel"
+                tone="warning"
+              />
+              <app-metric-card
+                label="Resultado"
+                [value]="currencySummary.netLabel"
+                [tone]="currencySummary.netTone"
+              />
+            </div>
+          </article>
+        }
+      </div>
+    </app-panel>
+
+    <app-panel eyebrow="Listado" title="Movimientos">
+      @if (pageItems.length > 0) {
+        <div class="movements-table-wrap surface-card">
+          <table class="movements-table">
+            <thead>
+              <tr>
+                <th scope="col">
+                  <button type="button" class="table-sort" [attr.aria-sort]="ariaSort('date')" (click)="setSort('date')">
+                    <span>Fecha</span>
+                    <app-icon [name]="sortIcon('date')" />
+                  </button>
+                </th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Categoría</th>
+                <th scope="col" class="movements-table__amount-col">
+                  <button
+                    type="button"
+                    class="table-sort table-sort--amount"
+                    [attr.aria-sort]="ariaSort('amount')"
+                    (click)="setSort('amount')"
+                  >
+                    <span>Importe</span>
+                    <app-icon [name]="sortIcon('amount')" />
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (movement of pageItems; track movement.id) {
+                <tr
+                  class="movements-row"
+                  [class.is-selected]="selectedMovement?.id === movement.id"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-selected]="selectedMovement?.id === movement.id"
+                  (click)="selectMovement(movement)"
+                  (keydown)="rowKeydown($event, movement)"
+                >
+                  <td class="movements-row__date">
+                    <span>{{ movement.dateLabel }}</span>
+                  </td>
+                  <td>
+                    <div class="movement-description">
+                      <span class="movement-description__icon movement-description__icon--{{ movement.kind }}">
+                        <app-icon [name]="movement.kindIcon" />
+                      </span>
+                      <div class="movement-description__copy">
+                        <strong>{{ movement.description }}</strong>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="type-pill type-pill--{{ movement.kindTone }}">
+                      {{ movement.kindLabel }}
+                    </span>
+                  </td>
+                  <td class="movements-row__muted movements-row__category">{{ categoryTrailLabel(movement) }}</td>
+                  <td class="movements-row__amount mono movements-row__amount--{{ movement.kindTone }}">
+                    {{ amountLabel(movement) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="movements-mobile-list">
+          @for (movement of pageItems; track movement.id) {
+            <article
+              class="movement-card surface-card"
+              [class.is-selected]="selectedMovement?.id === movement.id"
+              tabindex="0"
+              role="button"
+              [attr.aria-selected]="selectedMovement?.id === movement.id"
+              (click)="selectMovement(movement)"
+              (keydown)="rowKeydown($event, movement)"
+            >
+              <div class="movement-card__top">
+                <div class="movement-card__copy">
+                  <p class="movement-card__date">{{ movement.dateLabel }}</p>
+                  <h3>{{ movement.description }}</h3>
+                </div>
+                <p class="movement-card__amount mono">{{ amountLabel(movement) }}</p>
+              </div>
+
+              <div class="movement-card__meta">
+                <span class="type-pill type-pill--{{ movement.kindTone }}">{{ movement.kindLabel }}</span>
+                <span class="movement-card__subtle">{{ categoryTrailLabel(movement) }}</span>
+              </div>
+            </article>
+          }
+        </div>
+
+        <footer class="pagination">
+          <p class="pagination__label">{{ facade.pageRangeLabel() }}</p>
+          <div class="pagination__actions">
+            <button type="button" class="pagination__button surface-control" [disabled]="facade.currentPage() === 1" (click)="facade.setPage(facade.currentPage() - 1)">
+              <app-icon name="chevron-left" />
+              <span>Anterior</span>
+            </button>
+            <button
+              type="button"
+              class="pagination__button surface-control"
+              [disabled]="facade.currentPage() === facade.totalPages()"
+              (click)="facade.setPage(facade.currentPage() + 1)"
+            >
+              <span>Siguiente</span>
+              <app-icon name="chevron-right" />
+            </button>
+          </div>
+        </footer>
+      } @else {
+        <div class="empty-state">
+          <div class="empty-state__copy">
+            <p class="empty-state__eyebrow">Sin resultados</p>
+            <h3>No encontramos movimientos con esos filtros.</h3>
+            <p>Probá limpiar uno o más filtros para volver a ver el historial.</p>
+          </div>
+          <button type="button" class="clear-all" (click)="clearAllFilters()">Limpiar filtros</button>
+        </div>
+      }
+    </app-panel>
+  </div>
+
+  <button
+    class="movements-drawer-backdrop"
+    type="button"
+    [class.is-visible]="facade.drawerOpen()"
+    aria-label="Cerrar detalle"
+    [attr.tabindex]="facade.drawerOpen() ? 0 : -1"
+  [attr.aria-hidden]="!facade.drawerOpen()"
+  (click)="closeDrawer()"
+></button>
+
+  <aside class="movements-drawer" [class.is-open]="facade.drawerOpen()" aria-label="Detalle del movimiento">
+    <section class="drawer-panel surface-card">
+      <header class="drawer-panel__header">
+        <div class="drawer-panel__copy">
+          <p class="drawer-panel__eyebrow">Detalle</p>
+          <h2>{{ selectedMovement ? selectedMovement.kindLabel : 'Sin selección' }}</h2>
+        </div>
+        <button type="button" class="drawer-panel__close surface-control" aria-label="Cerrar detalle" (click)="closeDrawer()">
+          <app-icon name="close" />
+        </button>
+      </header>
+
+      @if (selectedMovement; as movement) {
+        <div class="drawer-panel__body">
+          <div class="drawer-summary surface-card">
+            <p class="drawer-summary__date">{{ movement.dateLabel }}</p>
+            <h3>{{ movement.description }}</h3>
+            <p class="drawer-summary__amount mono">{{ amountLabel(movement) }}</p>
+            <span class="type-pill type-pill--{{ movement.kindTone }}">{{ movement.kindLabel }}</span>
+          </div>
+
+          <dl class="drawer-details">
+            @if (movement.kind !== 'exchange') {
+              <div class="drawer-detail">
+                <dt>Moneda</dt>
+                <dd>{{ movement.currency }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Importe</dt>
+                <dd class="mono">{{ movement.amountLabel }}</dd>
+              </div>
+            }
+
+            @if (movement.kind === 'income' || movement.kind === 'expense') {
+              <div class="drawer-detail">
+                <dt>Cuenta</dt>
+                <dd>{{ movement.accountLabel ?? 'Sin cuenta' }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Categoría</dt>
+                <dd>{{ movement.categoryLabel ?? 'Sin categoría' }}</dd>
+              </div>
+              @if (movement.subcategoryLabel) {
+                <div class="drawer-detail">
+                  <dt>Subcategoría</dt>
+                  <dd>{{ movement.subcategoryLabel }}</dd>
+                </div>
+              }
+              @if (movement.sourceLabel) {
+                <div class="drawer-detail">
+                  <dt>Origen</dt>
+                  <dd>{{ movement.sourceLabel }}</dd>
+                </div>
+              }
+            }
+
+            @if (movement.kind === 'transfer') {
+              <div class="drawer-detail">
+                <dt>Cuenta origen</dt>
+                <dd>{{ movement.fromAccountLabel ?? 'Sin cuenta' }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Cuenta destino</dt>
+                <dd>{{ movement.toAccountLabel ?? 'Sin cuenta' }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Moneda</dt>
+                <dd>{{ movement.currency }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Importe</dt>
+                <dd class="mono">{{ movement.amountLabel }}</dd>
+              </div>
+            }
+
+            @if (movement.kind === 'exchange') {
+              <div class="drawer-detail">
+                <dt>Moneda origen</dt>
+                <dd>{{ movement.fromCurrency }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Importe origen</dt>
+                <dd class="mono">{{ movement.fromAmountLabel }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Moneda destino</dt>
+                <dd>{{ movement.toCurrency }}</dd>
+              </div>
+              <div class="drawer-detail">
+                <dt>Importe destino</dt>
+                <dd class="mono">{{ movement.toAmountLabel }}</dd>
+              </div>
+              @if (movement.fromAccountLabel || movement.toAccountLabel) {
+                <div class="drawer-detail">
+                  <dt>Cuentas</dt>
+                  <dd>{{ movement.fromAccountLabel ?? 'Sin cuenta' }} → {{ movement.toAccountLabel ?? 'Sin cuenta' }}</dd>
+                </div>
+              }
+              @if (movement.commissionLabel) {
+                <div class="drawer-detail">
+                  <dt>Comisión</dt>
+                  <dd class="mono">{{ movement.commissionLabel }}</dd>
+                </div>
+              }
+            }
+
+            @if (movement.notes) {
+              <div class="drawer-detail">
+                <dt>Notas</dt>
+                <dd>{{ movement.notes }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+      } @else {
+        <div class="drawer-empty">
+          <p class="drawer-empty__eyebrow">Seleccioná una fila</p>
+          <h3>Detalle del movimiento</h3>
+          <p>El detalle se abre al seleccionar una fila de la tabla o una tarjeta en mobile.</p>
+        </div>
+      }
+    </section>
+  </aside>
+</section>

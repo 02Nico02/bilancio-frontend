@@ -25,7 +25,9 @@
   letter-spacing: -0.03em;
   line-height: 1.08;
   font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   min-width: 0;
 }
 

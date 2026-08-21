@@ -9,11 +9,23 @@ export type IconName =
   | 'goals'
   | 'calendar'
   | 'chevron-down'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'close'
+  | 'search'
+  | 'filter'
+  | 'sort'
+  | 'sort-up'
+  | 'sort-down'
   | 'notifications'
   | 'settings'
   | 'profile'
   | 'plus'
-  | 'support';
+  | 'support'
+  | 'income'
+  | 'expense'
+  | 'transfer'
+  | 'exchange';
 
 @Component({
   selector: 'app-icon',

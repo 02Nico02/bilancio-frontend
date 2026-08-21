@@ -13,12 +13,6 @@ export class DashboardFacade {
   readonly expenseAnalyses = computed(() => this.summarySignal().expenseAnalyses);
   readonly insights = computed(() => this.summarySignal().insights);
 
-  readonly activeCashFlow = computed(
-    () =>
-      this.cashFlows().find((item) => item.currency === this.selectedCurrency()) ??
-      this.cashFlows()[0],
-  );
-
   readonly activeExpenseAnalysis = computed(
     () =>
       this.expenseAnalyses().find((item) => item.currency === this.selectedCurrency()) ??

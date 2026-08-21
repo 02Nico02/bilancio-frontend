@@ -1,29 +1,3 @@
-.header-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-}
-
-.header-actions__link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.72rem 1rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-border-subtle);
-  background: rgba(16, 25, 45, 0.9);
-  color: var(--color-text-primary);
-  font-weight: 700;
-}
-
-.header-actions__link {
-  border-color: rgba(136, 199, 255, 0.24);
-  background: rgba(136, 199, 255, 0.12);
-  text-decoration: none;
-}
-
 .dashboard-grid {
   display: grid;
   gap: var(--space-5);
@@ -80,12 +54,6 @@
   line-height: 1.2;
 }
 
-.cashflow-card__meta {
-  margin: 0;
-  color: var(--color-text-tertiary);
-  font-size: 0.88rem;
-}
-
 .metric-row {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -107,12 +75,16 @@
   font-size: clamp(1rem, 1.4vw, 1.4rem);
   font-weight: 800;
   letter-spacing: -0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cashflow-card__net-trend {
   margin: 0;
   font-size: 0.9rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .cashflow-card__net--favorable .cashflow-card__net-trend {
@@ -205,13 +177,14 @@
 
 .mini-stat strong,
 .expense-main__value,
-.category-row__meta p,
-.cashflow-card__meta {
+.category-row__meta p {
   min-width: 0;
   color: var(--color-text-primary);
   font-weight: 700;
   line-height: 1.35;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mini-stat strong {
@@ -277,6 +250,7 @@
   font-size: clamp(1.2rem, 2vw, 1.6rem);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.04em;
+  max-width: 100%;
 }
 
 .category-list {
@@ -504,15 +478,6 @@
   .expense-side,
   .insight-item {
     padding: var(--space-3);
-  }
-
-  .header-actions {
-    width: 100%;
-  }
-
-  .header-actions__period,
-  .header-actions__link {
-    width: 100%;
   }
 
   .mini-bars__row {

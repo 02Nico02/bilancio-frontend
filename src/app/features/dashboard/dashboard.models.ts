@@ -17,7 +17,6 @@ export interface CashFlowView {
   net: MoneyDisplay;
   variationLabel: string;
   variationTone: FinancialTone;
-  basePeriodLabel: string;
 }
 
 export interface PurchasingPowerSummary {
